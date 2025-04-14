@@ -19,50 +19,44 @@
 <noscript><div><img src="https://mc.yandex.ru/watch/101035876" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
   <meta charset="UTF-8">
-  <!-- Мета-тег для корректного масштабирования на устройствах -->
+  <!-- Мета-тег для корректного отображения на мобильных устройствах -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>First Click Test</title>
   <style>
-    /* Обнуляем отступы и задаём размеры для html и body */
+    /* Сбрасываем отступы, задаём размеры для html и body */
     html, body {
-      width: 100%;
-      height: 100%;
       margin: 0;
       padding: 0;
-      overflow: hidden;
+      width: 100%;
+      height: 100%;
     }
     body {
       font-family: Arial, sans-serif;
       text-align: center;
+      overflow: auto; /* позволяет скроллирование при необходимости */
     }
-    
-    /* Контейнер для масштабирования всего содержимого.
-       В данном примере отступы можно настроить по необходимости */
-    #scale-container {
-      /* Если нужно сохранить отступ от границ, можно задать margin.
-         Если требуется, чтобы контент занимал всё окно, оставьте margin = 0 */
-      margin: 40px;
-      display: inline-block;
-    }
-
+    /* Инструкция вынесена отдельно, чтобы оставалась адаптивной */
     #instruction {
       font-size: 20px;
-      margin-bottom: 20px;
-      /* Текст будет автоматически переноситься при нехватке места */
-      word-wrap: break-word;
+      margin: 20px;
+      max-width: 100%;
+      word-break: break-word;
     }
-
+    /* Контейнер для масштабируемой области (изображение и кнопка) */
+    #scale-container {
+      margin: 0 auto;
+      display: inline-block;
+    }
     #image-container {
       position: relative;
       display: inline-block;
     }
-
     #test-image {
+      display: block;
       max-width: 100%;
       height: auto;
       cursor: crosshair;
     }
-
     .click-marker {
       position: absolute;
       width: 14px;
@@ -73,82 +67,87 @@
       transform: translate(-50%, -50%);
       pointer-events: none;
     }
-
     #submit-button {
       margin-top: 30px;
       padding: 10px 20px;
       font-size: 16px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
   </style>
 </head>
 <body>
-  <!-- Оборачиваем всё содержимое в контейнер для масштабирования -->
-  <div id="scale-container">
-    <div id="instruction">
-      Представьте, что вы хотите заказать суши. Куда вы кликнете в первую очередь?
-    </div>
+  <!-- Инструкционный текст вне масштабируемой области – он останется адаптивным -->
+  <div id="instruction">
+    Представьте, что вы хотите заказать суши. Куда вы кликнете в первую очередь?
+  </div>
 
+  <!-- Масштабируемый контейнер для изображения и кнопки -->
+  <div id="scale-container">
     <div id="image-container">
       <img id="test-image" src="maket1.png" alt="Макет интерфейса">
     </div>
-
-    <div>
-      <button id="submit-button" disabled>Отправить</button>
-    </div>
+    <button id="submit-button" disabled>Отправить</button>
   </div>
 
   <script>
-    // Функция масштабирования содержимого относительно размеров окна браузера
+    // Глобальная переменная для хранения текущего коэффициента масштабирования
+    let currentScale = 1;
     window.addEventListener('load', function() {
-      const container = document.getElementById('scale-container');
+      const scaleContainer = document.getElementById('scale-container');
       // Сохраняем исходные размеры контейнера (нативный размер макета)
-      const baseWidth = container.offsetWidth;
-      const baseHeight = container.offsetHeight;
-
+      const baseWidth = scaleContainer.offsetWidth;
+      const baseHeight = scaleContainer.offsetHeight;
+      
       function scaleContent() {
-        // Коэффициент масштабирования – выбираем минимальное соотношение по ширине или высоте
-        const scale = Math.min(window.innerWidth / baseWidth, window.innerHeight / baseHeight);
-        container.style.transform = 'scale(' + scale + ')';
-        container.style.transformOrigin = 'top left';
+        // Выбираем коэффициент масштабирования так, чтобы весь контент помещался в окно
+        currentScale = Math.min(window.innerWidth / baseWidth, window.innerHeight / baseHeight);
+        scaleContainer.style.transform = 'scale(' + currentScale + ')';
+        scaleContainer.style.transformOrigin = 'top left';
       }
-
-      // Масштабировать сразу после загрузки и при изменении размера окна
+      
       window.addEventListener('resize', scaleContent);
       scaleContent();
     });
-
-    // Логика обработки клика по изображению и отправки данных
+    
+    // Обработка клика по изображению с учетом масштабирования
     const image = document.getElementById('test-image');
-    const container = document.getElementById('image-container');
+    const imageContainer = document.getElementById('image-container');
     const submitButton = document.getElementById('submit-button');
     let clickData = null;
-
+    
     image.addEventListener('click', function(e) {
       if (clickData) return;
-
+      
+      // Получаем размеры изображения с учётом трансформации (boundingRect уже масштабирован)
       const rect = image.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
+      // Вычисляем координаты клика относительно изображения и делим на currentScale,
+      // чтобы перевести их в исходную систему координат макета
+      const x = (e.clientX - rect.left) / currentScale;
+      const y = (e.clientY - rect.top) / currentScale;
+      
       clickData = { x: Math.round(x), y: Math.round(y) };
       console.log("Координаты первого клика:", clickData);
-
+      
       const marker = document.createElement('div');
       marker.className = 'click-marker';
+      // Позиция маркера задаётся с использованием скорректированных координат
       marker.style.left = `${x}px`;
       marker.style.top = `${y}px`;
-      container.appendChild(marker);
-
+      imageContainer.appendChild(marker);
+      
       submitButton.disabled = false;
     });
-
+    
+    // Обработка отправки данных о клике
     submitButton.addEventListener('click', function() {
       if (!clickData) return;
-
+      
       const formData = new URLSearchParams();
       formData.append("x", clickData.x);
       formData.append("y", clickData.y);
-
+      
       fetch("https://script.google.com/macros/s/AKfycbx4V_cYhkyeIbAg2vFts__OSqeGm9E30fGPoVk-spnLJEgF04tSrjEa-W4ROxjfx51kXA/exec", {
         method: "POST",
         body: formData
@@ -160,9 +159,9 @@
         console.error("Ошибка отправки:", error);
         alert("Произошла ошибка при отправке клика.");
       });
-
+      
       console.log("Отправка данных:", clickData);
-
+      
       submitButton.disabled = true;
       clickData = null;
     });
