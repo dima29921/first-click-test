@@ -19,17 +19,37 @@
 <noscript><div><img src="https://mc.yandex.ru/watch/101035876" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
   <meta charset="UTF-8">
+  <!-- Мета-тег для корректного масштабирования на устройствах -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>First Click Test</title>
   <style>
+    /* Обнуляем отступы и задаём размеры для html и body */
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
     body {
       font-family: Arial, sans-serif;
-      margin: 40px;
       text-align: center;
+    }
+    
+    /* Контейнер для масштабирования всего содержимого.
+       В данном примере отступы можно настроить по необходимости */
+    #scale-container {
+      /* Если нужно сохранить отступ от границ, можно задать margin.
+         Если требуется, чтобы контент занимал всё окно, оставьте margin = 0 */
+      margin: 40px;
+      display: inline-block;
     }
 
     #instruction {
       font-size: 20px;
       margin-bottom: 20px;
+      /* Текст будет автоматически переноситься при нехватке места */
+      word-wrap: break-word;
     }
 
     #image-container {
@@ -62,20 +82,42 @@
   </style>
 </head>
 <body>
+  <!-- Оборачиваем всё содержимое в контейнер для масштабирования -->
+  <div id="scale-container">
+    <div id="instruction">
+      Представьте, что вы хотите заказать суши. Куда вы кликнете в первую очередь?
+    </div>
 
-  <div id="instruction">
-    Представьте, что вы хотите заказать суши. Куда вы кликнете в первую очередь?
-  </div>
+    <div id="image-container">
+      <img id="test-image" src="maket1.png" alt="Макет интерфейса">
+    </div>
 
-  <div id="image-container">
-    <img id="test-image" src="maket1.png" alt="Макет интерфейса">
-  </div>
-
-  <div>
-    <button id="submit-button" disabled>Отправить</button>
+    <div>
+      <button id="submit-button" disabled>Отправить</button>
+    </div>
   </div>
 
   <script>
+    // Функция масштабирования содержимого относительно размеров окна браузера
+    window.addEventListener('load', function() {
+      const container = document.getElementById('scale-container');
+      // Сохраняем исходные размеры контейнера (нативный размер макета)
+      const baseWidth = container.offsetWidth;
+      const baseHeight = container.offsetHeight;
+
+      function scaleContent() {
+        // Коэффициент масштабирования – выбираем минимальное соотношение по ширине или высоте
+        const scale = Math.min(window.innerWidth / baseWidth, window.innerHeight / baseHeight);
+        container.style.transform = 'scale(' + scale + ')';
+        container.style.transformOrigin = 'top left';
+      }
+
+      // Масштабировать сразу после загрузки и при изменении размера окна
+      window.addEventListener('resize', scaleContent);
+      scaleContent();
+    });
+
+    // Логика обработки клика по изображению и отправки данных
     const image = document.getElementById('test-image');
     const container = document.getElementById('image-container');
     const submitButton = document.getElementById('submit-button');
@@ -125,6 +167,5 @@
       clickData = null;
     });
   </script>
-
 </body>
 </html>
