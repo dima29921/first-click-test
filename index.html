@@ -1,129 +1,111 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-   <!-- Yandex.Metrika counter -->
-<script type="text/javascript" >
-   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-   m[i].l=1*new Date();
-   for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-   k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-
-   ym(101035876, "init", {
-        clickmap:true,
-        trackLinks:true,
-        accurateTrackBounce:true,
-        webvisor:true
-   });
-</script>
-<noscript><div><img src="https://mc.yandex.ru/watch/101035876" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
   <meta charset="UTF-8">
-  <title>Страницы сайта</title>
-  <!-- Обеспечиваем корректное отображение на мобильных устройствах -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>First Click Test</title>
   <style>
-    /* Общий стиль для всех страниц */
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-    }
-    .page {
-      display: none;
-      padding: 20px;
+      margin: 40px;
       text-align: center;
     }
-    /* Первая страница (инструкция) отображается сразу */
-    #page1 {
-      display: block;
+
+    #instruction {
+      font-size: 20px;
+      margin-bottom: 20px;
     }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    /* Стили для макета (страница с изображением) */
-    #maket-container {
+
+    #image-container {
       position: relative;
       display: inline-block;
     }
-    #maketImage {
+
+    #test-image {
       max-width: 100%;
       height: auto;
+      cursor: crosshair;
     }
-    /* Выделенная кликабельная область (hotspot)
-       – позиционирование задано относительно родительского контейнера.
-       Здесь указаны примерные значения (left, top, width, height),
-       которые можно скорректировать под конкретный макет */
-    .hotspot {
+
+    .click-marker {
       position: absolute;
-      left: 50%;       /* Позиция по горизонтали (50% от родителя) */
-      top: 60%;        /* Позиция по вертикали */
-      width: 20%;      /* Ширина области в процентах */
-      height: 15%;     /* Высота области в процентах */
+      width: 14px;
+      height: 14px;
+      background-color: red;
+      border-radius: 50%;
+      border: 2px solid white;
       transform: translate(-50%, -50%);
-      background-color: rgba(0, 128, 0, 0.5); /* Полупрозрачный зелёный фон */
-      cursor: pointer;
+      pointer-events: none;
     }
-    /* Адаптивная настройка для мобильных устройств */
-    @media (max-width: 600px) {
-      .hotspot {
-        width: 30%;
-        height: 20%;
-      }
+
+    #submit-button {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Страница 1: Инструкция -->
-  <section id="page1" class="page">
-    <div class="container">
-      <h1>Инструкция</h1>
-      <p>Чтобы отправить клик, нажмите кнопку "Перейти к макету". Затем вы увидите макет страницы, на котором выделена область для клика.</p>
-      <button id="toMaketButton">Перейти к макету</button>
-    </div>
-  </section>
+  <div id="instruction">
+    Представьте, что вы хотите заказать суши. Куда вы кликнете в первую очередь?
+  </div>
 
-  <!-- Страница 2: Макет страницы "maket1" с выделенной кликабельной областью -->
-  <section id="page2" class="page">
-    <div class="container">
-      <h1>Макет страницы "maket1"</h1>
-      <div id="maket-container">
-        <img id="maketImage" src="maket1.png" alt="Макет страницы">
-        <!-- Кликабельная область -->
-        <div id="hotspot" class="hotspot"></div>
-      </div>
-      <p>Нажмите на выделенную область зеленого цвета.</p>
-    </div>
-  </section>
+  <div id="image-container">
+    <img id="test-image" src="maket1.png" alt="Макет интерфейса">
+  </div>
 
-  <!-- Страница 3: Вторая страница сайта -->
-  <section id="page3" class="page">
-    <div class="container">
-      <h1>Вторая страница сайта</h1>
-      <p>Добро пожаловать на вторую страницу сайта!</p>
-    </div>
-  </section>
+  <div>
+    <button id="submit-button" disabled>Отправить</button>
+  </div>
 
   <script>
-    // Получаем элементы страниц и управляющие кнопки/область
-    const page1 = document.getElementById('page1');
-    const page2 = document.getElementById('page2');
-    const page3 = document.getElementById('page3');
-    const toMaketButton = document.getElementById('toMaketButton');
-    const hotspot = document.getElementById('hotspot');
+    const image = document.getElementById('test-image');
+    const container = document.getElementById('image-container');
+    const submitButton = document.getElementById('submit-button');
+    let clickData = null;
 
-    // Переход со страницы инструкции (page1) на страницу с макетом (page2)
-    toMaketButton.addEventListener('click', () => {
-      page1.style.display = 'none';
-      page2.style.display = 'block';
+    image.addEventListener('click', function(e) {
+      if (clickData) return;
+
+      const rect = image.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      clickData = { x: Math.round(x), y: Math.round(y) };
+      console.log("Координаты первого клика:", clickData);
+
+      const marker = document.createElement('div');
+      marker.className = 'click-marker';
+      marker.style.left = `${x}px`;
+      marker.style.top = `${y}px`;
+      container.appendChild(marker);
+
+      submitButton.disabled = false;
     });
 
-    // Обработка клика по выделенной области на макете
-    hotspot.addEventListener('click', (e) => {
-      e.stopPropagation();
-      page2.style.display = 'none';
-      page3.style.display = 'block';
+    submitButton.addEventListener('click', function() {
+      if (!clickData) return;
+
+      const formData = new URLSearchParams();
+      formData.append("x", clickData.x);
+      formData.append("y", clickData.y);
+
+      fetch("https://script.google.com/macros/s/AKfycbx4V_cYhkyeIbAg2vFts__OSqeGm9E30fGPoVk-spnLJEgF04tSrjEa-W4ROxjfx51kXA/exec", {
+        method: "POST",
+        body: formData
+      })
+      .then(() => {
+        alert("Клик отправлен в таблицу!");
+      })
+      .catch((error) => {
+        console.error("Ошибка отправки:", error);
+        alert("Произошла ошибка при отправке клика.");
+      });
+
+      console.log("Отправка данных:", clickData);
+
+      submitButton.disabled = true;
+      clickData = null;
     });
   </script>
 
