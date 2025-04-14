@@ -195,39 +195,40 @@
       submitButton.disabled = false;
     });
 
-  // Обработка отправки данных на сервер (Google-таблица)
-  submitButton.addEventListener('click', function() {
-  if (!clickData || !userId || elapsedTime === null) return;
+    // Обработка отправки данных на сервер (Google-таблица)
+    submitButton.addEventListener('click', function() {
+      if (!clickData || !userId || elapsedTime === null) return;
 
-  // Подготавливаем данные для отправки
-  const formData = new URLSearchParams();
-  formData.append("id", userId);
-  formData.append("x", clickData.x);
-  formData.append("y", clickData.y);
-  formData.append("elapsedTime", elapsedTime);
+      // Подготавливаем данные для отправки.
+      // Изменённое имя параметра: вместо "id" используем "uid"
+      const formData = new URLSearchParams();
+      formData.append("uid", userId);
+      formData.append("x", clickData.x);
+      formData.append("y", clickData.y);
+      formData.append("elapsedTime", elapsedTime);
 
-  // Отправка данных через fetch с явной установкой заголовков
-  fetch("https://script.google.com/macros/s/AKfycbwFfQ1dV7ygT5OXPR979_YB7JabbSTmJNr4rI6HQZzNC-HTTETB5l0e65QOL7uRNcB78Q/exec", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
-    },
-    body: formData.toString()
-  })
-  .then(() => {
-    alert("Данные успешно отправлены в таблицу!");
-  })
-  .catch((error) => {
-    console.error("Ошибка отправки:", error);
-    alert("Произошла ошибка при отправке данных.");
-  });
+      // Отправка данных через fetch с установкой заголовка Content-Type
+      fetch("https://script.google.com/macros/s/AKfycbx6e_MDvpB-8liISnsQ92FkWUGGwp6KfKPbcYRIjPIV9kt8-YJ_Gd_-n2oeAFpct5-XTg/exec", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+        },
+        body: formData.toString()
+      })
+      .then(() => {
+        alert("Данные успешно отправлены в таблицу!");
+      })
+      .catch((error) => {
+        console.error("Ошибка отправки:", error);
+        alert("Произошла ошибка при отправке данных.");
+      });
 
-  console.log("Отправка данных:", { id: userId, clickData, elapsedTime });
+      console.log("Отправка данных:", { uid: userId, clickData, elapsedTime });
 
-  // После отправки можно отключить кнопку и, при необходимости, сбросить данные
-  submitButton.disabled = true;
-  clickData = null;
-});
+      // После отправки можно отключить кнопку и, при необходимости, сбросить данные
+      submitButton.disabled = true;
+      clickData = null;
+    });
   </script>
 </body>
 </html>
