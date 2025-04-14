@@ -19,11 +19,11 @@
 <noscript><div><img src="https://mc.yandex.ru/watch/101035876" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
   <meta charset="UTF-8">
-  <!-- Мета-тег для корректного отображения на мобильных устройствах -->
+  <!-- Мета-тег, чтобы страница корректно масштабировалась на мобильных устройствах -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>First Click Test</title>
   <style>
-    /* Сбрасываем отступы, задаём размеры для html и body */
+    /* Убираем отступы, растягиваем html и body на 100% */
     html, body {
       margin: 0;
       padding: 0;
@@ -33,30 +33,34 @@
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      overflow: auto; /* позволяет скроллирование при необходимости */
+      overflow-x: hidden; /* исключаем горизонтальную прокрутку */
     }
-    /* Инструкция вынесена отдельно, чтобы оставалась адаптивной */
+
+    /* Инструкционный блок — текст переносится при узком экране */
     #instruction {
       font-size: 20px;
       margin: 20px;
       max-width: 100%;
       word-break: break-word;
     }
-    /* Контейнер для масштабируемой области (изображение и кнопка) */
-    #scale-container {
-      margin: 0 auto;
-      display: inline-block;
-    }
+
+    /* Контейнер для изображения: занимает 100% ширины, центрируем на больших экранах */
     #image-container {
       position: relative;
-      display: inline-block;
+      width: 100%;
+      max-width: 600px; /* при желании можно убрать, чтобы было 100% на широких экранах */
+      margin: 0 auto;
     }
+
+    /* Адаптивное изображение: на смартфонах будет на всю ширину экрана */
     #test-image {
-      display: block;
-      max-width: 100%;
+      width: 100%;
       height: auto;
+      display: block;
       cursor: crosshair;
     }
+
+    /* Маркер клика */
     .click-marker {
       position: absolute;
       width: 14px;
@@ -67,6 +71,8 @@
       transform: translate(-50%, -50%);
       pointer-events: none;
     }
+
+    /* Кнопка */
     #submit-button {
       margin-top: 30px;
       padding: 10px 20px;
@@ -78,76 +84,59 @@
   </style>
 </head>
 <body>
-  <!-- Инструкционный текст вне масштабируемой области – он останется адаптивным -->
+  <!-- Текст с инструкцией -->
   <div id="instruction">
     Представьте, что вы хотите заказать суши. Куда вы кликнете в первую очередь?
   </div>
 
-  <!-- Масштабируемый контейнер для изображения и кнопки -->
-  <div id="scale-container">
-    <div id="image-container">
-      <img id="test-image" src="maket1.jpg" alt="Макет интерфейса">
-    </div>
-    <button id="submit-button" disabled>Отправить</button>
+  <!-- Контейнер для самого изображения и маркеров клика -->
+  <div id="image-container">
+    <img id="test-image" src="maket1.jpg" alt="Макет интерфейса">
   </div>
 
+  <!-- Кнопка отправки -->
+  <button id="submit-button" disabled>Отправить</button>
+
   <script>
-    // Глобальная переменная для хранения текущего коэффициента масштабирования
-    let currentScale = 1;
-    window.addEventListener('load', function() {
-      const scaleContainer = document.getElementById('scale-container');
-      // Сохраняем исходные размеры контейнера (нативный размер макета)
-      const baseWidth = scaleContainer.offsetWidth;
-      const baseHeight = scaleContainer.offsetHeight;
-      
-      function scaleContent() {
-        // Выбираем коэффициент масштабирования так, чтобы весь контент помещался в окно
-        currentScale = Math.min(window.innerWidth / baseWidth, window.innerHeight / baseHeight);
-        scaleContainer.style.transform = 'scale(' + currentScale + ')';
-        scaleContainer.style.transformOrigin = 'top left';
-      }
-      
-      window.addEventListener('resize', scaleContent);
-      scaleContent();
-    });
-    
-    // Обработка клика по изображению с учетом масштабирования
     const image = document.getElementById('test-image');
-    const imageContainer = document.getElementById('image-container');
+    const container = document.getElementById('image-container');
     const submitButton = document.getElementById('submit-button');
     let clickData = null;
-    
+
+    // Обработка клика по изображению
     image.addEventListener('click', function(e) {
-      if (clickData) return;
-      
-      // Получаем размеры изображения с учётом трансформации (boundingRect уже масштабирован)
+      if (clickData) return; // если уже кликнули один раз, второй раз не даём кликать
+
+      // Узнаём координаты клика относительно верхнего левого угла изображения
       const rect = image.getBoundingClientRect();
-      // Вычисляем координаты клика относительно изображения и делим на currentScale,
-      // чтобы перевести их в исходную систему координат макета
-      const x = (e.clientX - rect.left) / currentScale;
-      const y = (e.clientY - rect.top) / currentScale;
-      
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      // Сохраняем координаты в clickData
       clickData = { x: Math.round(x), y: Math.round(y) };
       console.log("Координаты первого клика:", clickData);
-      
+
+      // Добавляем красный маркер
       const marker = document.createElement('div');
       marker.className = 'click-marker';
-      // Позиция маркера задаётся с использованием скорректированных координат
       marker.style.left = `${x}px`;
       marker.style.top = `${y}px`;
-      imageContainer.appendChild(marker);
-      
+      container.appendChild(marker);
+
+      // Активируем кнопку отправки
       submitButton.disabled = false;
     });
-    
-    // Обработка отправки данных о клике
+
+    // Обработка отправки клика
     submitButton.addEventListener('click', function() {
       if (!clickData) return;
-      
+
+      // Подготавливаем данные формы
       const formData = new URLSearchParams();
       formData.append("x", clickData.x);
       formData.append("y", clickData.y);
-      
+
+      // Пример отправки данных через fetch
       fetch("https://script.google.com/macros/s/AKfycbx4V_cYhkyeIbAg2vFts__OSqeGm9E30fGPoVk-spnLJEgF04tSrjEa-W4ROxjfx51kXA/exec", {
         method: "POST",
         body: formData
@@ -159,9 +148,10 @@
         console.error("Ошибка отправки:", error);
         alert("Произошла ошибка при отправке клика.");
       });
-      
+
       console.log("Отправка данных:", clickData);
-      
+
+      // Отключаем кнопку и сбрасываем данные
       submitButton.disabled = true;
       clickData = null;
     });
