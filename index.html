@@ -195,36 +195,39 @@
       submitButton.disabled = false;
     });
 
-    // Обработка отправки данных на сервер (Google-таблица)
-    submitButton.addEventListener('click', function() {
-      if (!clickData || !userId || elapsedTime === null) return;
+  // Обработка отправки данных на сервер (Google-таблица)
+  submitButton.addEventListener('click', function() {
+  if (!clickData || !userId || elapsedTime === null) return;
 
-      // Подготавливаем данные для отправки
-      const formData = new URLSearchParams();
-      formData.append("id", userId);
-      formData.append("x", clickData.x);
-      formData.append("y", clickData.y);
-      formData.append("elapsedTime", elapsedTime);
+  // Подготавливаем данные для отправки
+  const formData = new URLSearchParams();
+  formData.append("id", userId);
+  formData.append("x", clickData.x);
+  formData.append("y", clickData.y);
+  formData.append("elapsedTime", elapsedTime);
 
-      // Отправка данных через fetch
-      fetch("https://script.google.com/macros/s/AKfycbz_dnGOhfKWHwwojIt9-fM6DgvJmI2_sP9hSVSz8x3RoXm8Kiv20paSTLXJ2Q4dDthyAg/exec", {
-        method: "POST",
-        body: formData
-      })
-      .then(() => {
-        alert("Данные успешно отправлены в таблицу!");
-      })
-      .catch((error) => {
-        console.error("Ошибка отправки:", error);
-        alert("Произошла ошибка при отправке данных.");
-      });
+  // Отправка данных через fetch с явной установкой заголовков
+  fetch("https://script.google.com/macros/s/AKfycbwFfQ1dV7ygT5OXPR979_YB7JabbSTmJNr4rI6HQZzNC-HTTETB5l0e65QOL7uRNcB78Q/exec", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+    },
+    body: formData.toString()
+  })
+  .then(() => {
+    alert("Данные успешно отправлены в таблицу!");
+  })
+  .catch((error) => {
+    console.error("Ошибка отправки:", error);
+    alert("Произошла ошибка при отправке данных.");
+  });
 
-      console.log("Отправка данных:", { id: userId, clickData, elapsedTime });
+  console.log("Отправка данных:", { id: userId, clickData, elapsedTime });
 
-      // После отправки можно отключить кнопку и, при необходимости, сбросить данные
-      submitButton.disabled = true;
-      clickData = null;
-    });
+  // После отправки можно отключить кнопку и, при необходимости, сбросить данные
+  submitButton.disabled = true;
+  clickData = null;
+});
   </script>
 </body>
 </html>
