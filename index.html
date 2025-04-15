@@ -105,7 +105,7 @@
   </style>
 </head>
 <body>
-  <!-- Модальное окно для ввода id и начала теста -->
+  <!-- Модальное окно для ввода ID и начала теста -->
   <div id="start-modal">
     <div>
       Вам предлагается First Click Test, где вам необходимо перейти к следующему разделу по нажатию одной кнопки.<br>
@@ -115,12 +115,12 @@
     <button id="start-button">Начать тест</button>
   </div>
 
-  <!-- Основной инструкционный текст на странице -->
+  <!-- Инструкционный текст -->
   <div id="instruction">
     Представьте, что вы хотите заказать суши. Куда вы кликнете в первую очередь?
   </div>
 
-  <!-- Контейнер для изображения и маркеров клика -->
+  <!-- Контейнер для изображения -->
   <div id="image-container">
     <img id="test-image" src="maket1.jpg" alt="Макет интерфейса">
   </div>
@@ -129,7 +129,7 @@
   <button id="submit-button" disabled>Отправить</button>
 
   <script>
-    // Глобальные переменные для теста
+    // Глобальные переменные
     let clickData = null;
     let startTime = null;
     let elapsedTime = null;
@@ -142,7 +142,7 @@
     const container = document.getElementById('image-container');
     const submitButton = document.getElementById('submit-button');
 
-    // Начало теста: сохраняем введённый ID и запускаем секундомер
+    // Запуск теста: сохраняем ID и запускаем секундомер
     startButton.addEventListener('click', function() {
       const enteredId = userIdInput.value.trim();
       if (!enteredId) {
@@ -164,7 +164,7 @@
       clickData = { x: Math.round(x), y: Math.round(y) };
       elapsedTime = ((Date.now() - startTime) / 1000).toFixed(2);
       console.log("Координаты первого клика:", clickData, "Время выполнения:", elapsedTime);
-
+      
       const marker = document.createElement('div');
       marker.className = 'click-marker';
       marker.style.left = `${x}px`;
@@ -173,34 +173,34 @@
       submitButton.disabled = false;
     });
 
-    // Отправка данных на сервер (Google-таблица)
+    // Отправка данных на сервер (Google Таблицу)
     submitButton.addEventListener('click', function() {
       if (!clickData || !userId || elapsedTime === null) return;
 
-      // Формируем объект с данными для отправки
-      const payload = {
-        uid: userId,
-        x: clickData.x,
-        y: clickData.y,
-        elapsedTime: elapsedTime
-      };
+      // Формируем URL‑encoded данные
+      const formData = new URLSearchParams();
+      formData.append("uid", userId);
+      formData.append("x", clickData.x);
+      formData.append("y", clickData.y);
+      formData.append("elapsedTime", elapsedTime);
 
-      fetch("https://script.google.com/macros/s/AKfycbxwaiDl4U5X0wHcMFSqvMuPdo9hgIJqVvdgp00xvqAPmMqQ605fqm2MCRiaBzipYUKu3g/exec", {
+      fetch("https://script.google.com/macros/s/AKfycbx6e_MDvpB-8liISnsQ92FkWUGGwp6KfKPbcYRIjPIV9kt8-YJ_Gd_-n2oeAFpct5-XTg/exec", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
         },
-        body: JSON.stringify(payload)
+        body: formData.toString()
       })
-      .then(() => {
+      .then(response => response.json())
+      .then(data => {
         alert("Данные успешно отправлены в таблицу!");
       })
-      .catch((error) => {
+      .catch(error => {
         console.error("Ошибка отправки:", error);
         alert("Произошла ошибка при отправке данных.");
       });
 
-      console.log("Отправка данных:", payload);
+      console.log("Отправка данных:", { uid: userId, x: clickData.x, y: clickData.y, elapsedTime: elapsedTime });
       submitButton.disabled = true;
       clickData = null;
     });
