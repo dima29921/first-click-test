@@ -4,10 +4,12 @@
   <!-- Yandex.Metrika counter -->
   <script type="text/javascript">
     (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-    m[i].l=1*new Date();
-    for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+      m[i].l=1*new Date();
+      for (var j = 0; j < document.scripts.length; j++) {
+        if (document.scripts[j].src === r) { return; }
+      }
+      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
     ym(101035876, "init", {
          clickmap:true,
@@ -26,7 +28,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>First Click Test</title>
   <style>
-    /* Убираем отступы, растягиваем html и body на 100% */
     html, body {
       margin: 0;
       padding: 0;
@@ -36,9 +37,8 @@
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      overflow-x: hidden; /* исключаем горизонтальную прокрутку */
+      overflow-x: hidden;
     }
-    /* Стиль для модального окна */
     #start-modal {
       position: fixed;
       top: 0;
@@ -66,29 +66,24 @@
       font-size: 16px;
       cursor: pointer;
     }
-
-    /* Инструкционный блок — текст переносится при узком экране */
     #instruction {
       font-size: 20px;
       margin: 20px;
       max-width: 100%;
       word-break: break-word;
     }
-    /* Контейнер для изображения: занимает 100% ширины, центрируем на больших экранах */
     #image-container {
       position: relative;
       width: 100%;
       max-width: 600px;
       margin: 0 auto;
     }
-    /* Адаптивное изображение: на смартфонах будет на всю ширину экрана */
     #test-image {
       width: 100%;
       height: auto;
       display: block;
       cursor: crosshair;
     }
-    /* Маркер клика */
     .click-marker {
       position: absolute;
       width: 14px;
@@ -99,7 +94,6 @@
       transform: translate(-50%, -50%);
       pointer-events: none;
     }
-    /* Кнопка отправки */
     #submit-button {
       margin-top: 30px;
       padding: 10px 20px;
@@ -114,7 +108,7 @@
   <!-- Модальное окно для ввода id и начала теста -->
   <div id="start-modal">
     <div>
-      Вам предлагается First Click Test, где вам необходимо перейти к следующему разделу по нажатию одной кнопки. <br>
+      Вам предлагается First Click Test, где вам необходимо перейти к следующему разделу по нажатию одной кнопки.<br>
       Перед началом теста введите свой ID, выданный вам сотрудником компании.
     </div>
     <input type="text" id="user-id" placeholder="Введите ваш ID">
@@ -141,79 +135,62 @@
     let elapsedTime = null;
     let userId = null;
 
-    // Элементы модального окна
     const startModal = document.getElementById('start-modal');
     const startButton = document.getElementById('start-button');
     const userIdInput = document.getElementById('user-id');
-
-    // Элементы основной части страницы
     const image = document.getElementById('test-image');
     const container = document.getElementById('image-container');
     const submitButton = document.getElementById('submit-button');
 
-    // Обработчик кнопки "Начать тест" в модальном окне
+    // Начало теста: сохраняем введённый ID и запускаем секундомер
     startButton.addEventListener('click', function() {
       const enteredId = userIdInput.value.trim();
       if (!enteredId) {
         alert("Пожалуйста, введите ваш ID!");
         return;
       }
-      // Сохраняем введённый ID и запускаем секундомер
       userId = enteredId;
       startTime = Date.now();
-      // Скрываем модальное окно
       startModal.style.display = 'none';
       console.log("Тест начат. ID пользователя:", userId);
     });
 
     // Обработка клика по изображению
     image.addEventListener('click', function(e) {
-      // Если клик уже зарегистрирован или тест ещё не начат, ничего не делаем
       if (clickData || !startTime) return;
-
-      // Определяем координаты клика относительно изображения
       const rect = image.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-
-      // Сохраняем координаты клика
       clickData = { x: Math.round(x), y: Math.round(y) };
-
-      // Останавливаем секундомер и вычисляем время выполнения (в секундах)
       elapsedTime = ((Date.now() - startTime) / 1000).toFixed(2);
-
       console.log("Координаты первого клика:", clickData, "Время выполнения:", elapsedTime);
 
-      // Добавляем маркер клика на изображение
       const marker = document.createElement('div');
       marker.className = 'click-marker';
       marker.style.left = `${x}px`;
       marker.style.top = `${y}px`;
       container.appendChild(marker);
-
-      // Активируем кнопку отправки
       submitButton.disabled = false;
     });
 
-    // Обработка отправки данных на сервер (Google-таблица)
+    // Отправка данных на сервер (Google-таблица)
     submitButton.addEventListener('click', function() {
       if (!clickData || !userId || elapsedTime === null) return;
 
-      // Подготавливаем данные для отправки.
-      // Изменённое имя параметра: вместо "id" используем "uid"
-      const formData = new URLSearchParams();
-      formData.append("uid", userId);
-      formData.append("x", clickData.x);
-      formData.append("y", clickData.y);
-      formData.append("elapsedTime", elapsedTime);
+      // Формируем объект с данными для отправки
+      const payload = {
+        uid: userId,
+        x: clickData.x,
+        y: clickData.y,
+        elapsedTime: elapsedTime
+      };
 
-      // Отправка данных через fetch с установкой заголовка Content-Type
-      fetch("https://script.google.com/macros/s/AKfycbx6e_MDvpB-8liISnsQ92FkWUGGwp6KfKPbcYRIjPIV9kt8-YJ_Gd_-n2oeAFpct5-XTg/exec", {
+      fetch("https://script.google.com/macros/s/AKfycbxwaiDl4U5X0wHcMFSqvMuPdo9hgIJqVvdgp00xvqAPmMqQ605fqm2MCRiaBzipYUKu3g/exec", {
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+          "Content-Type": "application/json"
         },
-        body: formData.toString()
+        body: JSON.stringify(payload)
       })
       .then(() => {
         alert("Данные успешно отправлены в таблицу!");
@@ -223,9 +200,7 @@
         alert("Произошла ошибка при отправке данных.");
       });
 
-      console.log("Отправка данных:", { uid: userId, clickData, elapsedTime });
-
-      // После отправки можно отключить кнопку и, при необходимости, сбросить данные
+      console.log("Отправка данных:", payload);
       submitButton.disabled = true;
       clickData = null;
     });
