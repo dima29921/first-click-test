@@ -176,7 +176,7 @@
     // Отправка данных на сервер (Google Таблицу)
     submitButton.addEventListener('click', function() {
       if (!clickData || !userId || elapsedTime === null) return;
-
+      
       // Формируем URL‑encoded данные
       const formData = new URLSearchParams();
       formData.append("uid", userId);
@@ -191,8 +191,9 @@
         },
         body: formData.toString()
       })
-      .then(response => response.json())
+      .then(response => response.text()) // меняем .json() на .text()
       .then(data => {
+        console.log("Ответ сервера:", data);
         alert("Данные успешно отправлены в таблицу!");
       })
       .catch(error => {
