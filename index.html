@@ -184,14 +184,14 @@
       formData.append("y", clickData.y);
       formData.append("elapsedTime", elapsedTime);
 
-      fetch("https://script.google.com/macros/s/AKfycbwpXHUzOR50fZm8c6hDmnpNmKrHlSxbHE3Qr3TZQVmO2KNbAc9MBbHb1ifWo0qK0f-VOQ/exec", {
+      fetch("https://script.google.com/macros/s/AKfycbxS6P8K4TbzeOZKZwqKW0QcaLus0wYxDfwCj1evQSiOd2_kNlBQQwXVHEcdPagvbizHow/exec", {
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+          "Content-Type": "application/x-www-form-urlencoded"
         },
         body: formData.toString()
       })
-      .then(response => response.text()) // меняем .json() на .text()
+      .then(response => response.text())
       .then(data => {
         console.log("Ответ сервера:", data);
         alert("Данные успешно отправлены в таблицу!");
